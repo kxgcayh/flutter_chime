@@ -38,14 +38,6 @@ class AmazonRealtimePlugin: FlutterPlugin, ActivityAware{
     activity = binding.activity
   }
 
-  // override fun configureFlutterEngine(flutterEngine: FlutterEngine) {
-    // super.configureFlutterEngine(flutterEngine)
-    // channel = MethodChannel(flutterEngine.dartExecutor.binaryMessenger, "dev.kxgcayh.amazon.realtime.plugin")
-    // methodCallHandler = AmazonChannelCoordinator(channel, context)
-    // flutterEngine.platformViewsController.registry
-    //   .registerViewFactory("videoTile", AndroidViewFactory())
-  // }
-
   override fun onDetachedFromEngine(binding: FlutterPlugin.FlutterPluginBinding) {
     channel.setMethodCallHandler(null)
   }
