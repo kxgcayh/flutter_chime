@@ -33,7 +33,7 @@ EXTERNAL SOURCES:
     :path: ".symlinks/plugins/permission_handler_apple/ios"
 
 SPEC CHECKSUMS:
-  amazon_realtime: 52c3b201e2ebe880d47cac7d1baf66b824d00154
+  amazon_realtime: ae44ee18ed081d67447eadaaded595d8ff400d0f
   AmazonChimeSDK-Bitcode: 0504362c4260b0229f2fac0cd9edf9b3c6191d22
   AmazonChimeSDKMedia-Bitcode: 8b5a340ecf4d4802a2875b872f0d06e6c6fab8c6
   Flutter: f04841e97a9d0b0a8025694d0796dd46242b2854
