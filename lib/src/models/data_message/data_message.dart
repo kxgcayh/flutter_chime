@@ -69,7 +69,7 @@ class DataMessage {
 
   @override
   String toString() {
-    return 'DataMessage(timestampMs: $timestampMs, topic: $topic, data: $data, senderAttendeeId: $senderAttendeeId, senderExternalUserId: $senderExternalUserId, throttled: $throttled)';
+    return 'DataMessage(timestampMs: $timestampMs, topic: $topic, data: ${text()}, senderAttendeeId: $senderAttendeeId, senderExternalUserId: $senderExternalUserId, throttled: $throttled)';
   }
 
   @override

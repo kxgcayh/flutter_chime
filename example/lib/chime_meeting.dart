@@ -28,10 +28,17 @@ class _ChimeMeetingState extends State<ChimeMeeting> {
   }
 
   @override
+  void dispose() {
+    // chimeController.stopCurrentMeeting();
+    chimeController.dispose();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
     return WillPopScope(
       onWillPop: () async {
-        chimeController.stopCurrentMeeting();
+        chimeController.dispose();
         return true;
       },
       child: Scaffold(

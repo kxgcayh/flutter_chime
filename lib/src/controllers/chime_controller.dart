@@ -308,6 +308,7 @@ class ChimeController extends ChangeNotifier
   @override
   Future<void> dataMessageReceived(DataMessage dataMessage) async {
     if (!isInitialized) return;
+    lg.w('@dataMessageReceived: $dataMessage');
     if (attendees.isContain(dataMessage.senderAttendeeId)) {
       messages.add(dataMessage);
       notifyListeners();

@@ -6,6 +6,7 @@ import android.content.Intent
 import android.content.Context
 import io.flutter.plugin.common.MethodChannel
 import io.flutter.embedding.engine.plugins.FlutterPlugin
+import io.flutter.embedding.engine.plugins.FlutterPlugin.FlutterPluginBinding
 import dev.kxgcayh.amazon.realtime.managers.PermissionHelper
 import dev.kxgcayh.amazon.realtime.managers.MeetingSessionManager
 import dev.kxgcayh.amazon.realtime.utils.AndroidViewFactory
@@ -25,8 +26,10 @@ class AmazonRealtimePlugin: FlutterPlugin, ActivityAware, FlutterActivity() {
   private lateinit var activity: Activity
   private lateinit var channel: MethodChannel
   private lateinit var methodCallHandler: AmazonChannelCoordinator
+  private lateinit var activityBinding: ActivityPluginBinding
+  private lateinit var listener: AmazonActivityListener
 
-  override fun onAttachedToEngine(flutterPluginBinding: FlutterPlugin.FlutterPluginBinding) {
+  override fun onAttachedToEngine(flutterPluginBinding: FlutterPluginBinding) {
     channel = MethodChannel(flutterPluginBinding.binaryMessenger, "dev.kxgcayh.amazon.realtime.plugin")
     context = flutterPluginBinding.applicationContext
     methodCallHandler = AmazonChannelCoordinator(channel, context)
@@ -35,48 +38,42 @@ class AmazonRealtimePlugin: FlutterPlugin, ActivityAware, FlutterActivity() {
   }
 
   override fun onAttachedToActivity(binding: ActivityPluginBinding) {
-    activity = binding.activity
-    PermissionHelper.setPermissionManager(activity)
+    setActivityBinding(binding)
   }
 
-  override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
-    super.onActivityResult(requestCode, resultCode, data)
-    if (PermissionHelper.instance.SCREEN_CAPTURE_REQUEST_CODE == requestCode) {
-      if (resultCode != Activity.RESULT_OK || data == null) {
-          PermissionHelper.instance.screenCaptureCallbackReceived()
-      } else {
-          data?.let { MeetingSessionManager.startScreenShare(resultCode, it, activity.applicationContext) }
-      }
-    }
-  }
-
-  override fun onRequestPermissionsResult(
-    requestCode: Int,
-    permissionsList: Array<String>,
-    grantResults: IntArray
-  ) {
-    when (requestCode) {
-        PermissionHelper.instance.AUDIO_PERMISSION_REQUEST_CODE -> {
-          PermissionHelper.instance.audioCallbackReceived()
-        }
-        PermissionHelper.instance.VIDEO_PERMISSION_REQUEST_CODE -> {
-          PermissionHelper.instance.videoCallbackReceived()
-        }
-        PermissionHelper.instance.SCREEN_CAPTURE_REQUEST_CODE -> {
-          PermissionHelper.instance.screenCaptureCallbackReceived()
-        }
-    }
-  }
-
-  override fun onDetachedFromEngine(binding: FlutterPlugin.FlutterPluginBinding) {
+  override fun onDetachedFromEngine(binding: FlutterPluginBinding) {
     channel.setMethodCallHandler(null)
   }
 
-  override fun onDetachedFromActivityForConfigChanges() {}
+  override fun onDetachedFromActivityForConfigChanges() {
+    removeActivityBinding()
+  }
 
-  override fun onReattachedToActivityForConfigChanges(binding: ActivityPluginBinding) {}
+  override fun onReattachedToActivityForConfigChanges(binding: ActivityPluginBinding) {
+    setActivityBinding(binding)
+  }
 
-  override fun onDetachedFromActivity() {}
+  override fun onDetachedFromActivity() {
+    removeActivityBinding()
+  }
+
+  override fun configureFlutterEngine(flutterEngine: FlutterEngine) {
+    super.configureFlutterEngine(flutterEngine)
+  }
+
+  private fun setActivityBinding(binding: ActivityPluginBinding) {
+    activityBinding = binding
+    activity = activityBinding.activity
+    listener = AmazonActivityListener(activity.applicationContext)
+    activityBinding.addRequestPermissionsResultListener(listener);
+    activityBinding.addActivityResultListener(listener);
+    PermissionHelper.setPermissionManager(activity)
+  }
+
+  private fun removeActivityBinding() {
+    activityBinding.removeRequestPermissionsResultListener(listener);
+    activityBinding.removeActivityResultListener(listener);
+  }
 
   companion object {
     private const val TAG = "AmazonRealtimePlugin"
