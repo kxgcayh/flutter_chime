@@ -38,4 +38,6 @@ class MethodCallChannel {
   static const String SEND_DATA_MESSAGE = 'sendDataMessage';
   static const String PAUSE_VIDEO_TILE = "pauseVideoTile";
   static const String RESUME_VIDEO_TILE = "resumeVideoTile";
+  static const String REQUEST_SCREEN_CAPTURE = "requestScreenCapture";
+  static const String STOP_SCREEN_CAPTURE = "stopScreenCapture";
 }

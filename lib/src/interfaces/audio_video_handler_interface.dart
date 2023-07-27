@@ -13,4 +13,6 @@ abstract class AudioVideoHandlerInterface {
   Future<void> mute();
   Future<void> unmute();
   Future<void> updateLocalVideo();
+  Future<void> startScreenShare();
+  Future<void> stopScreenShare();
 }

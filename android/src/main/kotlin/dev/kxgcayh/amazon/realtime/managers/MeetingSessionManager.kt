@@ -174,7 +174,7 @@ object MeetingSessionManager {
                 val screenCaptureSourceObserver = object : CaptureSourceObserver {
                     override fun onCaptureStarted() {
                         screenShareManager?.let { source ->
-                            meetingSession?.audioVideo?.startContentShare(source)
+                            audioVideo.startContentShare(source)
                         }
                     }
 
@@ -184,7 +184,7 @@ object MeetingSessionManager {
 
                     override fun onCaptureFailed(error: CaptureSourceError) {
                         meetingSessionlogger.error("CaptureSourceObserver", "Screen capture failed with error $error")
-                        meetingSession?.audioVideo?.stopContentShare()
+                        audioVideo.stopContentShare()
                     }
                 }
 
@@ -197,13 +197,18 @@ object MeetingSessionManager {
             }
         }
 
+        val captureIntent = Intent(fragmentContext, ScreenCaptureService::class.java)
         fragmentContext.startService(
-            Intent(fragmentContext, ScreenCaptureService::class.java).also { intent ->
+            captureIntent.also { intent ->
                 screenshareServiceConnection?.let {
                     context.bindService(intent, it, Context.BIND_AUTO_CREATE)
                 }
             }
         )
+
+        // fragmentContext.registerForActivityResult(StartActivityForResult()) { result ->
+        //     onActivityResult(Constants.MY_CODE_REQUEST, result)
+        // }.launch(Intent(fragmentContext, ScreenCaptureService::class.java))
     }
 
     private val NULL_MEETING_SESSION_RESPONSE: AmazonChannelResponse = AmazonChannelResponse(

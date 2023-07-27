@@ -315,6 +315,18 @@ class ChimeController extends ChangeNotifier
   }
 
   @override
+  Future<void> startScreenShare() async {
+    final response = await plugin.requestScreenCapture();
+    lg.w('@startScreenShare: $response');
+  }
+
+  @override
+  Future<void> stopScreenShare() async {
+    final response = await plugin.stopScreenCapture();
+    lg.w('@stopScreenShare: $response');
+  }
+
+  @override
   Future<void> audioSessionCancelledReconnect() async {
     if (!isInitialized) return;
   }

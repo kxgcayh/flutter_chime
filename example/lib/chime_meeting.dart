@@ -252,7 +252,7 @@ class _ChimeMeetingState extends State<ChimeMeeting> {
               _BottomMenuItem(
                 icon: Icons.screen_share_rounded,
                 label: 'Share',
-                onTap: () {},
+                onTap: () => chimeController.startScreenShare(),
               ),
             ],
           ),

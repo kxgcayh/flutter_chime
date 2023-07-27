@@ -32,25 +32,31 @@ class AmazonChannelCoordinator(channel: MethodChannel, context: Context): Method
     private lateinit var channel: MethodChannel
     private lateinit var context: Context
 
+    var isReplied: Boolean = false
+
     init {
         this.channel = channel
         this.context = context
     }
 
     override fun onMethodCall(call: MethodCall, result: Result) {
+        isReplied = false
         var callResult: AmazonChannelResponse = AmazonChannelResponse(false, ResponseMessage.METHOD_NOT_IMPLEMENTED)
         when (call.method) {
             MethodCallFlutter.GET_PLATFORM_VERSION -> {
-                AmazonChannelResponse(true, "Android ${android.os.Build.VERSION.RELEASE}")
+                callResult = AmazonChannelResponse(true, "Android ${android.os.Build.VERSION.RELEASE}")
             }
             MethodCallFlutter.MANAGE_AUDIO_PERMISSIONS -> {
                 PermissionHelper.instance.manageAudioPermissions(result)
+                isReplied = true
             }
             MethodCallFlutter.MANAGE_VIDEO_PERMISSIONS -> {
                 PermissionHelper.instance.manageVideoPermissions(result)
+                isReplied = true
             }
             MethodCallFlutter.REQUEST_SCREEN_CAPTURE -> {
                 PermissionHelper.instance.manageScreenCapturePermissions(result)
+                isReplied = true
             }
             MethodCallFlutter.JOIN -> {
                 callResult = join(call)
@@ -79,17 +85,19 @@ class AmazonChannelCoordinator(channel: MethodChannel, context: Context): Method
             MethodCallFlutter.STOP_LOCAL_VIDEO -> {
                 callResult = stopLocalVideo()
             }
-            else -> AmazonChannelResponse(false, ResponseMessage.METHOD_NOT_IMPLEMENTED)
+            else -> callResult = AmazonChannelResponse(false, ResponseMessage.METHOD_NOT_IMPLEMENTED)
         }
 
         if (callResult.result) {
             result.success(callResult.toFlutterCompatibleType())
         } else {
-            result.error(
-                "Failed",
-                "MethodChannelHandler failed",
-                callResult.toFlutterCompatibleType()
-            )
+            if (!isReplied) {
+                result.error(
+                    "Failed",
+                    "MethodChannelHandler failed",
+                    callResult.toFlutterCompatibleType()
+                )
+            }
         }
     }
 

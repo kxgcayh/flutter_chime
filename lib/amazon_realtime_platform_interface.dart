@@ -105,4 +105,12 @@ abstract class AmazonRealtimePlatform extends PlatformInterface {
     throw UnimplementedError(
         'resumeRemoteVideoTile(int tileId) has not been implemented');
   }
+
+  Future<AmazonChannelResponse> requestScreenCapture() {
+    throw UnimplementedError('requestScreenCapture() has not been implemented');
+  }
+
+  Future<AmazonChannelResponse> stopScreenCapture() {
+    throw UnimplementedError('stopScreenCapture() has not been implemented');
+  }
 }

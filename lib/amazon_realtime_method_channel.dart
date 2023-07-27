@@ -274,4 +274,14 @@ class MethodChannelAmazonRealtime implements AmazonRealtimePlatform {
     return await callMethod(
         MethodCallChannel.RESUME_VIDEO_TILE, {'tileId': tileId});
   }
+
+  @override
+  Future<AmazonChannelResponse> requestScreenCapture() async {
+    return await callMethod(MethodCallChannel.REQUEST_SCREEN_CAPTURE);
+  }
+
+  @override
+  Future<AmazonChannelResponse> stopScreenCapture() async {
+    return await callMethod(MethodCallChannel.STOP_SCREEN_CAPTURE);
+  }
 }

@@ -32,11 +32,11 @@ class AmazonRealtimePlugin: FlutterPlugin, ActivityAware, FlutterActivity() {
     methodCallHandler = AmazonChannelCoordinator(channel, context)
     channel.setMethodCallHandler(methodCallHandler)
     flutterPluginBinding.platformViewRegistry.registerViewFactory("videoTile", AndroidViewFactory())
-    PermissionHelper.setPermissionManager(activity)
   }
 
   override fun onAttachedToActivity(binding: ActivityPluginBinding) {
     activity = binding.activity
+    PermissionHelper.setPermissionManager(activity)
   }
 
   override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
@@ -45,7 +45,7 @@ class AmazonRealtimePlugin: FlutterPlugin, ActivityAware, FlutterActivity() {
       if (resultCode != Activity.RESULT_OK || data == null) {
           PermissionHelper.instance.screenCaptureCallbackReceived()
       } else {
-          data?.let { MeetingSessionManager.startScreenShare(resultCode, it, context) }
+          data?.let { MeetingSessionManager.startScreenShare(resultCode, it, activity.applicationContext) }
       }
     }
   }
