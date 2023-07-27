@@ -1,4 +1,7 @@
+import 'dart:ui';
+
 import 'package:amazon_realtime/amazon_realtime.dart';
+import 'package:amazon_realtime/amazon_realtime_platform_interface.dart';
 import 'package:amazon_realtime_example/chime_meeting.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
@@ -40,21 +43,20 @@ class JoinMeetingScreenState extends State<JoinMeetingScreen> {
             Text('Join Meeting Simulation'),
             ElevatedButton(
               onPressed: () async {
+                final plugin = AmazonRealtimePlatform.instance;
+                final platform = await plugin.getAudioPermission();
+                print(platform);
                 // ? You can join the meeting based on ur api
-                final dio = Dio();
-                await dio.get(dotenv.get('JOIN_URI')).then(
-                  (result) {
-                    final response = JoinRoomResponse.fromJson(result.data);
-                    return Navigator.pushReplacement(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) => ChimeMeeting(
-                          source: MeetingDataSource(meetingInfo: response.data),
-                        ),
-                      ),
-                    );
-                  },
-                );
+                // final dio = Dio();
+                // await dio.get(dotenv.get('JOIN_URI')).then(
+                //   (response) {
+                //     final meetingInfo = JoinRoomResponse.fromJson(
+                //       response.data,
+                //     );
+                //     return meetingViewNavigate(
+                //         MeetingDataSource(meetingInfo: meetingInfo.data));
+                //   },
+                // );
 
                 // ? Or define data first at environment
                 // final envDataSource = MeetingDataSource(
