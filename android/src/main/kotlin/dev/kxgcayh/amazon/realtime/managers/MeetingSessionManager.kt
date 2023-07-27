@@ -38,7 +38,7 @@ import dev.kxgcayh.amazon.realtime.managers.ScreenShareManager
 
 object MeetingSessionManager {
 	val eglCoreFactory: EglCoreFactory = DefaultEglCoreFactory()
-	private val meetingSessionlogger: ConsoleLogger = ConsoleLogger()
+	private val logger: ConsoleLogger = ConsoleLogger()
 
 	lateinit var context: Context
 	lateinit var meetingSession: MeetingSession
@@ -73,14 +73,14 @@ object MeetingSessionManager {
 		this.audioVideo = audioVideo
 
 		val surfaceTextureCaptureSourceFactory = DefaultSurfaceTextureCaptureSourceFactory(
-			meetingSessionlogger,
+			logger,
 			eglCoreFactory
 		)
-		cameraCaptureSource = DefaultCameraCaptureSource(context, meetingSessionlogger, surfaceTextureCaptureSourceFactory).apply {
+		cameraCaptureSource = DefaultCameraCaptureSource(context, logger, surfaceTextureCaptureSourceFactory).apply {
 			eventAnalyticsController = meetingSession.eventAnalyticsController
 		}
-		cpuVideoProcessor = CpuVideoProcessor(meetingSessionlogger, eglCoreFactory)
-		gpuVideoProcessor = GpuVideoProcessor(meetingSessionlogger, eglCoreFactory)
+		cpuVideoProcessor = CpuVideoProcessor(logger, eglCoreFactory)
+		gpuVideoProcessor = GpuVideoProcessor(logger, eglCoreFactory)
 	}
 
 	fun startMeeting(
@@ -112,23 +112,23 @@ object MeetingSessionManager {
 		audioVideoObserver.let {
 			audioVideo.addAudioVideoObserver(it)
 			this.audioVideoObserver = audioVideoObserver
-			meetingSessionlogger.debug("AudioVideoObserver", "AudioVideoObserver initialized")
+			logger.debug("AudioVideoObserver", "AudioVideoObserver initialized")
 		}
 		dataMessageObserver.let {
 			audioVideo.addRealtimeDataMessageObserver("capabilities", it)
 			audioVideo.addRealtimeDataMessageObserver("chat", it)
 			this.dataMessageObserver = dataMessageObserver
-			meetingSessionlogger.debug("DataMessageObserver", "DataMessageObserver initialized")
+			logger.debug("DataMessageObserver", "DataMessageObserver initialized")
 		}
 		realtimeObserver.let {
 			audioVideo.addRealtimeObserver(it)
 			this.realtimeObserver = realtimeObserver
-			meetingSessionlogger.debug("RealtimeObserver", "RealtimeObserver initialized")
+			logger.debug("RealtimeObserver", "RealtimeObserver initialized")
 		}
 		videoTileObserver.let {
 			audioVideo.addVideoTileObserver(videoTileObserver)
 			this.videoTileObserver = videoTileObserver
-			meetingSessionlogger.debug("VideoTileObserver", "VideoTileObserver initialized")
+			logger.debug("VideoTileObserver", "VideoTileObserver initialized")
 		}
 	}
 
@@ -166,8 +166,8 @@ object MeetingSessionManager {
 			override fun onServiceConnected(className: ComponentName, service: IBinder) {
 				val screenCaptureSource = DefaultScreenCaptureSource(
 					fragmentContext,
-					meetingSessionlogger,
-					DefaultSurfaceTextureCaptureSourceFactory(meetingSessionlogger, DefaultEglCoreFactory()),
+					logger,
+					DefaultSurfaceTextureCaptureSourceFactory(logger, DefaultEglCoreFactory()),
 					resultCode,
 					data
 				)
@@ -184,11 +184,11 @@ object MeetingSessionManager {
 					}
 
 					override fun onCaptureStopped() {
-						meetingSessionlogger.debug("CaptureSourceObserver", "Screen capture stopped")
+						logger.debug("CaptureSourceObserver", "Screen capture stopped")
 					}
 
 					override fun onCaptureFailed(error: CaptureSourceError) {
-						meetingSessionlogger.error("CaptureSourceObserver", "Screen capture failed with error $error")
+						logger.error("CaptureSourceObserver", "Screen capture failed with error $error")
 						audioVideo.stopContentShare()
 					}
 				}

@@ -24,17 +24,17 @@ class AmazonActivityListener(context: Context): ActivityResultListener, RequestP
     }
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?): Boolean {
-        var status: Boolean = false
         if (PermissionHelper.instance.SCREEN_CAPTURE_REQUEST_CODE == requestCode) {
             if (resultCode != Activity.RESULT_OK || data == null) {
                 PermissionHelper.instance.screenCaptureCallbackReceived()
             } else {
-                status = true
-                data?.let { MeetingSessionManager.startScreenShare(resultCode, it, context) }
-                Log.i(TAG, "Calling startScreenShare $resultCode, $data, $context")
+                data?.let {
+                    MeetingSessionManager.startScreenShare(resultCode, it, context)
+                }
+                return true
             }
         }
-        return status
+        return false
     }
 
     override fun onRequestPermissionsResult(
