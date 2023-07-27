@@ -8,7 +8,7 @@ package dev.kxgcayh.amazon.realtime.observers
 import com.google.gson.Gson
 import dev.kxgcayh.amazon.realtime.AmazonChannelCoordinator
 import dev.kxgcayh.amazon.realtime.constants.MethodCallFlutter
-import dev.kxgcayh.amazon.realtime.utils.MeetingSessionManager
+import dev.kxgcayh.amazon.realtime.managers.MeetingSessionManager
 import com.amazonaws.services.chime.sdk.meetings.audiovideo.video.VideoTileState
 import com.amazonaws.services.chime.sdk.meetings.audiovideo.video.VideoTileObserver
 

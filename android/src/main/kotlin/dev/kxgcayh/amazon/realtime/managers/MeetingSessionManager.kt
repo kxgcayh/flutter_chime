@@ -3,7 +3,7 @@
  * SPDX-License-Identifier: MIT-0
  */
 
-package dev.kxgcayh.amazon.realtime.utils
+package dev.kxgcayh.amazon.realtime.managers
 
 import dev.kxgcayh.amazon.realtime.AmazonChannelResponse
 import dev.kxgcayh.amazon.realtime.constants.ResponseMessage
@@ -15,15 +15,61 @@ import com.amazonaws.services.chime.sdk.meetings.utils.logger.ConsoleLogger
 import com.amazonaws.services.chime.sdk.meetings.audiovideo.AudioVideoFacade
 import com.amazonaws.services.chime.sdk.meetings.session.DefaultMeetingSession
 
+import android.content.Context
+import com.amazonaws.services.chime.sdk.meetings.audiovideo.video.gl.DefaultEglCoreFactory
+import com.amazonaws.services.chime.sdk.meetings.audiovideo.video.gl.EglCoreFactory
+import com.amazonaws.services.chime.sdk.meetings.session.MeetingSession
+import com.amazonaws.services.chime.sdk.meetings.session.MeetingSessionConfiguration
+import com.amazonaws.services.chime.sdk.meetings.session.MeetingSessionCredentials
+import com.amazonaws.services.chime.sdk.meetings.audiovideo.video.capture.DefaultSurfaceTextureCaptureSourceFactory
+import com.amazonaws.services.chime.sdk.meetings.audiovideo.video.capture.CameraCaptureSource
+import com.amazonaws.services.chime.sdk.meetings.audiovideo.video.capture.DefaultCameraCaptureSource
+import dev.kxgcayh.amazon.realtime.utils.CpuVideoProcessor
+import dev.kxgcayh.amazon.realtime.utils.GpuVideoProcessor
+import dev.kxgcayh.amazon.realtime.managers.ScreenShareManager
+
 object MeetingSessionManager {
+    val eglCoreFactory: EglCoreFactory = DefaultEglCoreFactory()
     private val meetingSessionlogger: ConsoleLogger = ConsoleLogger()
 
-    lateinit var meetingSession: DefaultMeetingSession
+    lateinit var meetingSession: MeetingSession
+    lateinit var credentials: MeetingSessionCredentials
+    lateinit var configuration: MeetingSessionConfiguration
+    lateinit var audioVideo: AudioVideoFacade
+    lateinit var cameraCaptureSource: CameraCaptureSource
+    lateinit var gpuVideoProcessor: GpuVideoProcessor
+    lateinit var cpuVideoProcessor: CpuVideoProcessor
+
     lateinit var audioVideoObserver: AudioVideoObserver
     lateinit var dataMessageObserver: DataMessageObserver
     lateinit var realtimeObserver: RealtimeObserver
     lateinit var videoTileObserver: VideoTileObserver
+
     var meetingInitialized: Boolean = false
+    var screenShareManager: ScreenShareManager? = null
+
+    fun initialize(
+        context: Context,
+        meetingSession: MeetingSession,
+        credentials: MeetingSessionCredentials,
+        configuration: MeetingSessionConfiguration,
+        audioVideo: AudioVideoFacade
+    ) {
+        this.meetingSession = meetingSession
+        this.credentials = credentials
+        this.configuration = configuration
+        this.audioVideo = audioVideo
+
+        val surfaceTextureCaptureSourceFactory = DefaultSurfaceTextureCaptureSourceFactory(
+            meetingSessionlogger,
+            eglCoreFactory
+        )
+        cameraCaptureSource = DefaultCameraCaptureSource(context, meetingSessionlogger, surfaceTextureCaptureSourceFactory).apply {
+            eventAnalyticsController = meetingSession.eventAnalyticsController
+        }
+        cpuVideoProcessor = CpuVideoProcessor(meetingSessionlogger, eglCoreFactory)
+        gpuVideoProcessor = GpuVideoProcessor(meetingSessionlogger, eglCoreFactory)
+    }
 
     fun startMeeting(
         audioVideoObserver: AudioVideoObserver,
@@ -32,7 +78,6 @@ object MeetingSessionManager {
         videoTileObserver: VideoTileObserver,
     ): AmazonChannelResponse {
         if (!meetingInitialized) {
-            val audioVideo: AudioVideoFacade = meetingSession.audioVideo
             addObservers(
                 audioVideoObserver,
                 dataMessageObserver,
@@ -52,7 +97,6 @@ object MeetingSessionManager {
         realtimeObserver: RealtimeObserver,
         videoTileObserver: VideoTileObserver,
     ) {
-        val audioVideo: AudioVideoFacade = meetingSession.audioVideo
         audioVideoObserver.let {
             audioVideo.addAudioVideoObserver(it)
             this.audioVideoObserver = audioVideoObserver
@@ -78,23 +122,23 @@ object MeetingSessionManager {
 
     private fun removeObservers() {
         audioVideoObserver.let {
-            meetingSession.audioVideo.removeAudioVideoObserver(it)
+            audioVideo.removeAudioVideoObserver(it)
         }
         dataMessageObserver.let {
-            meetingSession.audioVideo.removeRealtimeDataMessageObserverFromTopic("capabilities")
-            meetingSession.audioVideo.removeRealtimeDataMessageObserverFromTopic("chat")
+            audioVideo.removeRealtimeDataMessageObserverFromTopic("capabilities")
+            audioVideo.removeRealtimeDataMessageObserverFromTopic("chat")
         }
         realtimeObserver.let {
-            meetingSession.audioVideo.removeRealtimeObserver(it)
+            audioVideo.removeRealtimeObserver(it)
         }
         videoTileObserver.let {
-            meetingSession.audioVideo.removeVideoTileObserver(it)
+            audioVideo.removeVideoTileObserver(it)
         }
     }
 
     fun stop(): AmazonChannelResponse {
-        meetingSession.audioVideo.stopRemoteVideo()
-        meetingSession.audioVideo.stop()
+        audioVideo.stopRemoteVideo()
+        audioVideo.stop()
         removeObservers()
         meetingInitialized = false
         return AmazonChannelResponse(true, ResponseMessage.MEETING_STOPPED_SUCCESSFULLY)

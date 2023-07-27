@@ -11,6 +11,7 @@ import io.flutter.plugin.platform.PlatformView
 import com.amazonaws.services.chime.sdk.meetings.audiovideo.video.DefaultVideoRenderView
 import com.amazonaws.services.chime.sdk.meetings.audiovideo.video.VideoScalingType
 import com.amazonaws.services.chime.sdk.meetings.utils.logger.ConsoleLogger
+import dev.kxgcayh.amazon.realtime.managers.MeetingSessionManager
 
 internal class VideoTileView(context: Context?, creationParams: Int?) : PlatformView {
     private val view: DefaultVideoRenderView

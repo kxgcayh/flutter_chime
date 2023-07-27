@@ -250,8 +250,8 @@ class _ChimeMeetingState extends State<ChimeMeeting> {
                 onTap: () {},
               ),
               _BottomMenuItem(
-                icon: Icons.more_horiz_rounded,
-                label: 'More',
+                icon: Icons.screen_share_rounded,
+                label: 'Share',
                 onTap: () {},
               ),
             ],
