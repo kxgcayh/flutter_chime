@@ -25,5 +25,7 @@ class ResponseMessage {
         const val AUDIO_DEVICE_UPDATE_FAILED = "Android: Failed to update audio device"
         const val NULL_AUDIO_DEVICE = "Android: ERROR received null as audio device"
         const val METHOD_NOT_IMPLEMENTED = "Android: ERROR method not implemented"
+        const val SCREEN_CAPTURE_AUTH_GRANTED = "Android: Screen capture usage authorized"
+        const val SCREEN_CAPTURE_AUTH_NOT_GRANTED = "Android: Failed to authorize screen capture"
     }
 }

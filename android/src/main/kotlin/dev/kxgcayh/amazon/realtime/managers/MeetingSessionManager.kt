@@ -27,11 +27,20 @@ import com.amazonaws.services.chime.sdk.meetings.audiovideo.video.capture.Defaul
 import dev.kxgcayh.amazon.realtime.utils.CpuVideoProcessor
 import dev.kxgcayh.amazon.realtime.utils.GpuVideoProcessor
 import dev.kxgcayh.amazon.realtime.managers.ScreenShareManager
+import android.content.ServiceConnection
+import android.content.ComponentName
+import android.os.IBinder
+import android.content.Intent
+import com.amazonaws.services.chime.sdk.meetings.audiovideo.video.capture.CaptureSourceObserver
+import com.amazonaws.services.chime.sdk.meetings.audiovideo.video.capture.DefaultScreenCaptureSource
+import com.amazonaws.services.chime.sdk.meetings.audiovideo.video.capture.CaptureSourceError
+import dev.kxgcayh.amazon.realtime.utils.ScreenCaptureService
 
 object MeetingSessionManager {
     val eglCoreFactory: EglCoreFactory = DefaultEglCoreFactory()
     private val meetingSessionlogger: ConsoleLogger = ConsoleLogger()
 
+    lateinit var context: Context
     lateinit var meetingSession: MeetingSession
     lateinit var credentials: MeetingSessionCredentials
     lateinit var configuration: MeetingSessionConfiguration
@@ -46,7 +55,9 @@ object MeetingSessionManager {
     lateinit var videoTileObserver: VideoTileObserver
 
     var meetingInitialized: Boolean = false
+    var isBound: Boolean = false
     var screenShareManager: ScreenShareManager? = null
+    var screenshareServiceConnection: ServiceConnection? = null
 
     fun initialize(
         context: Context,
@@ -55,6 +66,7 @@ object MeetingSessionManager {
         configuration: MeetingSessionConfiguration,
         audioVideo: AudioVideoFacade
     ) {
+        this.context = context
         this.meetingSession = meetingSession
         this.credentials = credentials
         this.configuration = configuration
@@ -142,6 +154,56 @@ object MeetingSessionManager {
         removeObservers()
         meetingInitialized = false
         return AmazonChannelResponse(true, ResponseMessage.MEETING_STOPPED_SUCCESSFULLY)
+    }
+
+    fun startScreenShare(resultCode: Int, data: Intent, fragmentContext: Context) {
+        screenshareServiceConnection = object : ServiceConnection {
+            override fun onServiceConnected(className: ComponentName, service: IBinder) {
+                val screenCaptureSource = DefaultScreenCaptureSource(
+                    fragmentContext,
+                    meetingSessionlogger,
+                    DefaultSurfaceTextureCaptureSourceFactory(meetingSessionlogger, DefaultEglCoreFactory()),
+                    resultCode,
+                    data
+                )
+
+                isBound = true
+                screenShareManager = ScreenShareManager(screenCaptureSource, fragmentContext)
+                screenShareManager?.screenCaptureConnectionService = screenshareServiceConnection
+
+                val screenCaptureSourceObserver = object : CaptureSourceObserver {
+                    override fun onCaptureStarted() {
+                        screenShareManager?.let { source ->
+                            meetingSession?.audioVideo?.startContentShare(source)
+                        }
+                    }
+
+                    override fun onCaptureStopped() {
+                        meetingSessionlogger.debug("CaptureSourceObserver", "Screen capture stopped")
+                    }
+
+                    override fun onCaptureFailed(error: CaptureSourceError) {
+                        meetingSessionlogger.error("CaptureSourceObserver", "Screen capture failed with error $error")
+                        meetingSession?.audioVideo?.stopContentShare()
+                    }
+                }
+
+                screenShareManager?.addObserver(screenCaptureSourceObserver)
+                screenShareManager?.start()
+            }
+
+            override fun onServiceDisconnected(arg0: ComponentName) {
+                isBound = false
+            }
+        }
+
+        fragmentContext.startService(
+            Intent(fragmentContext, ScreenCaptureService::class.java).also { intent ->
+                screenshareServiceConnection?.let {
+                    context.bindService(intent, it, Context.BIND_AUTO_CREATE)
+                }
+            }
+        )
     }
 
     private val NULL_MEETING_SESSION_RESPONSE: AmazonChannelResponse = AmazonChannelResponse(

@@ -26,8 +26,6 @@ import com.amazonaws.services.chime.sdk.meetings.session.CreateMeetingResponse
 import com.amazonaws.services.chime.sdk.meetings.session.CreateAttendeeResponse
 import com.amazonaws.services.chime.sdk.meetings.session.MeetingSessionConfiguration
 
-import androidx.lifecycle.ViewModelProvider
-
 class AmazonChannelCoordinator(channel: MethodChannel, context: Context): MethodCallHandler, AppCompatActivity() {
     private val gson = Gson()
     private lateinit var channel: MethodChannel
