@@ -72,7 +72,7 @@ class PermissionManager(val activity: Activity): AppCompatActivity() {
         }
     }
 
-    private fun audioCallbackReceived() {
+    fun audioCallbackReceived() {
         val callResult: AmazonChannelResponse
         if (hasPermissionsAlready(AUDIO_PERMISSIONS)) {
             callResult = AmazonChannelResponse(true, "Android: Audio Auth Granted")

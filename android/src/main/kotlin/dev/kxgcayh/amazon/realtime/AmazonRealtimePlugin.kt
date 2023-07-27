@@ -7,6 +7,7 @@ import android.content.Context
 import io.flutter.plugin.common.MethodChannel
 import io.flutter.embedding.engine.plugins.FlutterPlugin
 import dev.kxgcayh.amazon.realtime.managers.PermissionManager
+import dev.kxgcayh.amazon.realtime.managers.MeetingSessionManager
 import dev.kxgcayh.amazon.realtime.utils.AndroidViewFactory
 import io.flutter.plugin.common.MethodChannel.MethodCallHandler
 import io.flutter.embedding.engine.FlutterEngine
@@ -47,6 +48,24 @@ class AmazonRealtimePlugin: FlutterPlugin, ActivityAware, FlutterActivity() {
       } else {
           data?.let { MeetingSessionManager.startScreenShare(resultCode, it, context) }
       }
+    }
+  }
+
+  override fun onRequestPermissionsResult(
+    requestCode: Int,
+    permissionsList: Array<String>,
+    grantResults: IntArray
+  ) {
+    when (requestCode) {
+        permissionManager.AUDIO_PERMISSION_REQUEST_CODE -> {
+            permissionManager.audioCallbackReceived()
+        }
+        permissionManager.VIDEO_PERMISSION_REQUEST_CODE -> {
+            permissionManager.videoCallbackReceived()
+        }
+        permissionManager.SCREEN_CAPTURE_REQUEST_CODE -> {
+            permissionManager.screenCaptureCallbackReceived()
+        }
     }
   }
 
