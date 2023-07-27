@@ -5,17 +5,14 @@
 
 package dev.kxgcayh.amazon.realtime.managers
 
-import dev.kxgcayh.amazon.realtime.AmazonChannelResponse
-import dev.kxgcayh.amazon.realtime.constants.ResponseMessage
-import dev.kxgcayh.amazon.realtime.observers.AudioVideoObserver
-import dev.kxgcayh.amazon.realtime.observers.DataMessageObserver
-import dev.kxgcayh.amazon.realtime.observers.RealtimeObserver
-import dev.kxgcayh.amazon.realtime.observers.VideoTileObserver
+import android.os.IBinder
+import android.content.Intent
+import android.content.Context
+import android.content.ComponentName
+import android.content.ServiceConnection
 import com.amazonaws.services.chime.sdk.meetings.utils.logger.ConsoleLogger
 import com.amazonaws.services.chime.sdk.meetings.audiovideo.AudioVideoFacade
 import com.amazonaws.services.chime.sdk.meetings.session.DefaultMeetingSession
-
-import android.content.Context
 import com.amazonaws.services.chime.sdk.meetings.audiovideo.video.gl.DefaultEglCoreFactory
 import com.amazonaws.services.chime.sdk.meetings.audiovideo.video.gl.EglCoreFactory
 import com.amazonaws.services.chime.sdk.meetings.session.MeetingSession
@@ -24,17 +21,20 @@ import com.amazonaws.services.chime.sdk.meetings.session.MeetingSessionCredentia
 import com.amazonaws.services.chime.sdk.meetings.audiovideo.video.capture.DefaultSurfaceTextureCaptureSourceFactory
 import com.amazonaws.services.chime.sdk.meetings.audiovideo.video.capture.CameraCaptureSource
 import com.amazonaws.services.chime.sdk.meetings.audiovideo.video.capture.DefaultCameraCaptureSource
-import dev.kxgcayh.amazon.realtime.utils.CpuVideoProcessor
-import dev.kxgcayh.amazon.realtime.utils.GpuVideoProcessor
-import dev.kxgcayh.amazon.realtime.managers.ScreenShareManager
-import android.content.ServiceConnection
-import android.content.ComponentName
-import android.os.IBinder
-import android.content.Intent
 import com.amazonaws.services.chime.sdk.meetings.audiovideo.video.capture.CaptureSourceObserver
 import com.amazonaws.services.chime.sdk.meetings.audiovideo.video.capture.DefaultScreenCaptureSource
 import com.amazonaws.services.chime.sdk.meetings.audiovideo.video.capture.CaptureSourceError
+
+import dev.kxgcayh.amazon.realtime.AmazonChannelResponse
+import dev.kxgcayh.amazon.realtime.constants.ResponseMessage
+import dev.kxgcayh.amazon.realtime.observers.AudioVideoObserver
+import dev.kxgcayh.amazon.realtime.observers.DataMessageObserver
+import dev.kxgcayh.amazon.realtime.observers.RealtimeObserver
+import dev.kxgcayh.amazon.realtime.observers.VideoTileObserver
+import dev.kxgcayh.amazon.realtime.utils.CpuVideoProcessor
+import dev.kxgcayh.amazon.realtime.utils.GpuVideoProcessor
 import dev.kxgcayh.amazon.realtime.utils.ScreenCaptureService
+import dev.kxgcayh.amazon.realtime.managers.ScreenShareManager
 
 object MeetingSessionManager {
     val eglCoreFactory: EglCoreFactory = DefaultEglCoreFactory()
@@ -205,10 +205,6 @@ object MeetingSessionManager {
                 }
             }
         )
-
-        // fragmentContext.registerForActivityResult(StartActivityForResult()) { result ->
-        //     onActivityResult(Constants.MY_CODE_REQUEST, result)
-        // }.launch(Intent(fragmentContext, ScreenCaptureService::class.java))
     }
 
     private val NULL_MEETING_SESSION_RESPONSE: AmazonChannelResponse = AmazonChannelResponse(

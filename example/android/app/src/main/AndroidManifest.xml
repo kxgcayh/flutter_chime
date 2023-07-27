@@ -36,8 +36,9 @@
         <meta-data
             android:name="flutterEmbedding"
             android:value="2" />
+        <activity android:name="dev.kxgcayh.amazon.realtime" android:exported="false"/>
         <service
-            android:name="dev.kxgcayh.amazon.realtime.utils.ScreenCaptureService"
+            android:name=".ScreenCaptureService"
             android:enabled="true"
             android:foregroundServiceType="mediaProjection"
             android:stopWithTask="true"
