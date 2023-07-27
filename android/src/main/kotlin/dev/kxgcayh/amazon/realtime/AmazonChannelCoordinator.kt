@@ -25,6 +25,7 @@ import com.amazonaws.services.chime.sdk.meetings.session.DefaultMeetingSession
 import com.amazonaws.services.chime.sdk.meetings.session.CreateMeetingResponse
 import com.amazonaws.services.chime.sdk.meetings.session.CreateAttendeeResponse
 import com.amazonaws.services.chime.sdk.meetings.session.MeetingSessionConfiguration
+import dev.kxgcayh.amazon.realtime.managers.PermissionHelper
 
 class AmazonChannelCoordinator(channel: MethodChannel, context: Context): MethodCallHandler, AppCompatActivity() {
     private val gson = Gson()
@@ -38,36 +39,45 @@ class AmazonChannelCoordinator(channel: MethodChannel, context: Context): Method
 
     override fun onMethodCall(call: MethodCall, result: Result) {
         var callResult: AmazonChannelResponse = AmazonChannelResponse(false, ResponseMessage.METHOD_NOT_IMPLEMENTED)
-        callResult = when (call.method) {
+        when (call.method) {
             MethodCallFlutter.GET_PLATFORM_VERSION -> {
                 AmazonChannelResponse(true, "Android ${android.os.Build.VERSION.RELEASE}")
             }
+            MethodCallFlutter.MANAGE_AUDIO_PERMISSIONS -> {
+                PermissionHelper.instance.manageAudioPermissions(result)
+            }
+            MethodCallFlutter.MANAGE_VIDEO_PERMISSIONS -> {
+                PermissionHelper.instance.manageVideoPermissions(result)
+            }
+            MethodCallFlutter.REQUEST_SCREEN_CAPTURE -> {
+                PermissionHelper.instance.manageScreenCapturePermissions(result)
+            }
             MethodCallFlutter.JOIN -> {
-                join(call)
+                callResult = join(call)
             }
             MethodCallFlutter.LIST_AUDIO_DEVICES -> {
-                listAudioDevices()
+                callResult = listAudioDevices()
             }
             MethodCallFlutter.INITIAL_AUDIO_SELECTION -> {
-                initialAudioSelection()
+                callResult = initialAudioSelection()
             }
             MethodCallFlutter.UPDATE_AUDIO_DEVICE -> {
-                updateAudioDevice(call)
+                callResult = updateAudioDevice(call)
             }
             MethodCallFlutter.MUTE -> {
-                mute()
+                callResult = mute()
             }
             MethodCallFlutter.UNMUTE -> {
-                unmute()
+                callResult = unmute()
             }
             MethodCallFlutter.STOP -> {
-                MeetingSessionManager.stop()
+                callResult = MeetingSessionManager.stop()
             }
             MethodCallFlutter.START_LOCAL_VIDEO -> {
-                startLocalVideo()
+                callResult = startLocalVideo()
             }
             MethodCallFlutter.STOP_LOCAL_VIDEO -> {
-                stopLocalVideo()
+                callResult = stopLocalVideo()
             }
             else -> AmazonChannelResponse(false, ResponseMessage.METHOD_NOT_IMPLEMENTED)
         }

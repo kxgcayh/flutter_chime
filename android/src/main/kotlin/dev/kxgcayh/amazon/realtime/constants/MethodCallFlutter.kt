@@ -40,5 +40,6 @@ class MethodCallFlutter {
         const val VIDEO_SESSION_STOPPED = "videoSessionStopped"
         const val PAUSE_VIDEO_TILE = "pauseVideoTile"
         const val RESUME_VIDEO_TILE = "resumeVideoTile"
+        const val REQUEST_SCREEN_CAPTURE = "requestScreenCapture"
     }
 }

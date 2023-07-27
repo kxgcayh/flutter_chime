@@ -6,7 +6,7 @@ import android.content.Intent
 import android.content.Context
 import io.flutter.plugin.common.MethodChannel
 import io.flutter.embedding.engine.plugins.FlutterPlugin
-import dev.kxgcayh.amazon.realtime.managers.PermissionManager
+import dev.kxgcayh.amazon.realtime.managers.PermissionHelper
 import dev.kxgcayh.amazon.realtime.managers.MeetingSessionManager
 import dev.kxgcayh.amazon.realtime.utils.AndroidViewFactory
 import io.flutter.plugin.common.MethodChannel.MethodCallHandler
@@ -24,7 +24,6 @@ class AmazonRealtimePlugin: FlutterPlugin, ActivityAware, FlutterActivity() {
   private lateinit var context: Context
   private lateinit var activity: Activity
   private lateinit var channel: MethodChannel
-  private lateinit var permissionManager: PermissionManager
   private lateinit var methodCallHandler: AmazonChannelCoordinator
 
   override fun onAttachedToEngine(flutterPluginBinding: FlutterPlugin.FlutterPluginBinding) {
@@ -33,7 +32,7 @@ class AmazonRealtimePlugin: FlutterPlugin, ActivityAware, FlutterActivity() {
     methodCallHandler = AmazonChannelCoordinator(channel, context)
     channel.setMethodCallHandler(methodCallHandler)
     flutterPluginBinding.platformViewRegistry.registerViewFactory("videoTile", AndroidViewFactory())
-    permissionManager = PermissionManager(activity)
+    PermissionHelper.setPermissionManager(activity)
   }
 
   override fun onAttachedToActivity(binding: ActivityPluginBinding) {
@@ -42,9 +41,9 @@ class AmazonRealtimePlugin: FlutterPlugin, ActivityAware, FlutterActivity() {
 
   override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
     super.onActivityResult(requestCode, resultCode, data)
-    if (permissionManager.SCREEN_CAPTURE_REQUEST_CODE == requestCode) {
+    if (PermissionHelper.instance.SCREEN_CAPTURE_REQUEST_CODE == requestCode) {
       if (resultCode != Activity.RESULT_OK || data == null) {
-          permissionManager.screenCaptureCallbackReceived()
+          PermissionHelper.instance.screenCaptureCallbackReceived()
       } else {
           data?.let { MeetingSessionManager.startScreenShare(resultCode, it, context) }
       }
@@ -57,14 +56,14 @@ class AmazonRealtimePlugin: FlutterPlugin, ActivityAware, FlutterActivity() {
     grantResults: IntArray
   ) {
     when (requestCode) {
-        permissionManager.AUDIO_PERMISSION_REQUEST_CODE -> {
-            permissionManager.audioCallbackReceived()
+        PermissionHelper.instance.AUDIO_PERMISSION_REQUEST_CODE -> {
+          PermissionHelper.instance.audioCallbackReceived()
         }
-        permissionManager.VIDEO_PERMISSION_REQUEST_CODE -> {
-            permissionManager.videoCallbackReceived()
+        PermissionHelper.instance.VIDEO_PERMISSION_REQUEST_CODE -> {
+          PermissionHelper.instance.videoCallbackReceived()
         }
-        permissionManager.SCREEN_CAPTURE_REQUEST_CODE -> {
-            permissionManager.screenCaptureCallbackReceived()
+        PermissionHelper.instance.SCREEN_CAPTURE_REQUEST_CODE -> {
+          PermissionHelper.instance.screenCaptureCallbackReceived()
         }
     }
   }

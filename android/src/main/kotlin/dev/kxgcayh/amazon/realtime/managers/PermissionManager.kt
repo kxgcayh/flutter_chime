@@ -119,3 +119,12 @@ class PermissionManager(val activity: Activity): AppCompatActivity() {
         }
     }
 }
+
+
+object PermissionHelper {
+    lateinit var instance: PermissionManager
+
+    fun setPermissionManager(activity: Activity) {
+        this.instance = PermissionManager(activity)
+    }
+}
